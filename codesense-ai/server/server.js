@@ -36,19 +36,14 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
-        cb(null, true);
-      } else {
-        cb(null, true); // Allow configured deployments
-      }
-    },
+    origin: true,
     credentials: true,
   })
 );
 
 app.use(express.json({ limit: "5mb" }));
 
+app.get("/", (req, res) => res.json({ status: "ok", message: "CodeSense AI API is live" }));
 app.get("/api/health", (req, res) => res.json({ status: "ok", timestamp: new Date().toISOString() }));
 
 app.use("/api/auth", authRoutes);
