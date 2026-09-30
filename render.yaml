@@ -14,11 +14,7 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
-      - key: ANTHROPIC_API_KEY
-        sync: false
-      - key: VOYAGE_API_KEY
-        sync: false
-      - key: GITHUB_TOKEN
+      - key: GROQ_API_KEY
         sync: false
       - key: CLIENT_ORIGIN
         fromService:
