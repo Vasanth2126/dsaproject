@@ -1,28 +1,57 @@
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from "uuid";
+import { getCollection, saveDB } from "../config/db.js";
 
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, minlength: 6 },
+function wrapUser(user) {
+  if (!user) return null;
+  return {
+    ...user,
+    comparePassword: async function (candidate) {
+      return bcrypt.compare(candidate, user.password);
+    },
+    toSafeObject: function () {
+      return { id: user._id, name: user.name, email: user.email, createdAt: user.createdAt };
+    },
+  };
+}
+
+const User = {
+  async findOne(query) {
+    const users = getCollection("users");
+    const found = users.find((u) => {
+      for (const [k, v] of Object.entries(query)) {
+        if (k === "email" && u.email?.toLowerCase() !== v?.toLowerCase()) return false;
+        if (k !== "email" && u[k] !== v) return false;
+      }
+      return true;
+    });
+    return wrapUser(found);
   },
-  { timestamps: true }
-);
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
-});
+  async findById(id) {
+    const users = getCollection("users");
+    const found = users.find((u) => u._id === String(id) || u.id === String(id));
+    return wrapUser(found);
+  },
 
-userSchema.methods.comparePassword = function (candidate) {
-  return bcrypt.compare(candidate, this.password);
+  async create({ name, email, password }) {
+    const users = getCollection("users");
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = {
+      _id: uuidv4(),
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    users.push(newUser);
+    saveDB();
+    return wrapUser(newUser);
+  },
 };
 
-userSchema.methods.toSafeObject = function () {
-  return { id: this._id, name: this.name, email: this.email, createdAt: this.createdAt };
-};
-
-export default mongoose.model("User", userSchema);
+export default User;
