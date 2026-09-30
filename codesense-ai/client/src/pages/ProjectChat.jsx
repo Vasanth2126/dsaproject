@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import api from "../api/axios.js";
 import { cn } from "../lib/utils.js";
+import { getApiBaseUrl } from "../lib/apiUrl.js";
 
 const SUGGESTIONS = [
   "How does authentication & JWT work?",
@@ -93,11 +94,7 @@ export default function ProjectChat() {
 
     try {
       const token = localStorage.getItem("codesense_token") || localStorage.getItem("token");
-      let rawApiUrl = import.meta.env.VITE_API_URL || "";
-      if (rawApiUrl && !rawApiUrl.startsWith("http://") && !rawApiUrl.startsWith("https://") && !rawApiUrl.startsWith("/")) {
-        rawApiUrl = `https://${rawApiUrl}`;
-      }
-      const baseURL = rawApiUrl ? rawApiUrl.replace(/\/$/, "") : "";
+      const baseURL = getApiBaseUrl();
       const response = await fetch(`${baseURL}/api/chat/${id}/stream`, {
         method: "POST",
         headers: {

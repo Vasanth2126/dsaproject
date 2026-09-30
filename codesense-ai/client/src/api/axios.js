@@ -1,10 +1,8 @@
 import axios from "axios";
+import { getApiBaseUrl } from "../lib/apiUrl.js";
 
-let rawUrl = import.meta.env.VITE_API_URL || "";
-if (rawUrl && !rawUrl.startsWith("http://") && !rawUrl.startsWith("https://") && !rawUrl.startsWith("/")) {
-  rawUrl = `https://${rawUrl}`;
-}
-const baseURL = rawUrl ? `${rawUrl.replace(/\/$/, "")}/api` : "/api";
+const apiHost = getApiBaseUrl();
+const baseURL = apiHost ? `${apiHost}/api` : "/api";
 
 const api = axios.create({ baseURL });
 
@@ -15,4 +13,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
