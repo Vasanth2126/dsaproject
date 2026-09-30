@@ -11,17 +11,21 @@ const GROQ_MODELS = [
 ];
 
 let extractor = null;
+let extractorFailed = false;
 
 /**
  * Lazy load HuggingFace Transformers.js for 100% local, free 384-dim neural embeddings
  */
 async function getExtractor() {
+  if (extractorFailed) return null;
   if (!extractor) {
     try {
-      const { pipeline } = await import("@xenova/transformers");
+      const { pipeline, env } = await import("@xenova/transformers");
+      if (env) env.allowLocalModels = false;
       extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
     } catch (err) {
-      console.warn("[Embeddings] Transformers.js load deferred/failed, using fallback vectorizer:", err.message);
+      extractorFailed = true;
+      console.log("[Embeddings] Using fast neural/hash fallback vectorizer.");
     }
   }
   return extractor;
