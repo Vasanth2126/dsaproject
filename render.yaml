@@ -1,0 +1,49 @@
+services:
+  # -------------------------------------------------------------
+  # Backend API Service
+  # -------------------------------------------------------------
+  - type: web
+    name: codesense-api
+    env: node
+    rootDir: codesense-ai/server
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: VOYAGE_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: CLIENT_ORIGIN
+        fromService:
+          type: web
+          name: codesense-client
+          property: host
+
+  # -------------------------------------------------------------
+  # Frontend Static Site
+  # -------------------------------------------------------------
+  - type: web
+    name: codesense-client
+    env: static
+    rootDir: codesense-ai/client
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: codesense-api
+          property: host

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # MongoDB Database Service
+  mongodb:
+    image: mongo:7-jammy
+    container_name: codesense-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=codesense
+
+  # Backend API Server
+  server:
+    build:
+      context: ./codesense-ai/server
+      dockerfile: Dockerfile
+    container_name: codesense-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/codesense
+      - JWT_SECRET=change_this_to_a_secure_random_key
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - VOYAGE_API_KEY=${VOYAGE_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - CLIENT_ORIGIN=http://localhost:5173
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:
+    driver: local
