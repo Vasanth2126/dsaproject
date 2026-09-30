@@ -2,12 +2,13 @@ import axios from "axios";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-// Models confirmed available for Groq API
+// Models confirmed available on Groq
 const GROQ_MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.8-27b",
   "llama-3.3-70b-versatile",
-  "llama3-70b-8192",
-  "qwen-2.5-32b",
-  "groq/compound-mini"
+  "llama-3.1-8b-instant"
 ];
 
 let extractor = null;
