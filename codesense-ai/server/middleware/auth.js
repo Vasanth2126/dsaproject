@@ -9,7 +9,7 @@ export function requireAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_SECRET || "codesense_dev_secret_key_2026");
     req.userId = payload.userId;
     next();
   } catch (err) {
