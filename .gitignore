@@ -10,6 +10,10 @@ build/
 .env.*
 !.env.example
 
+# Local database storage
+**/data/
+codesense-ai/server/data/
+
 # Logs
 *.log
 npm-debug.log*
